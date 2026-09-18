@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="container" style="max-width: 600px;">
+    <div class="card text-center py-8">
+        <h2 class="text-2xl font-bold text-red-500 mb-4">
+            <i class="fas fa-exclamation-triangle"></i> {% trans "Supprimer la publication" %}
+        </h2>
+        <p class="mb-6">{% trans "Êtes-vous sûr de vouloir supprimer cette publication ? Cette action est irréversible." %}</p>
+        
+        <div class="p-4 border border-color rounded mb-6 text-left bg-main">
+            {{ post.content|truncatechars:100 }}
+        </div>
+        
+        <form method="post">
+            {% csrf_token %}
+            <div class="flex justify-center gap-4">
+                <a href="{% url 'core:feed' %}" class="btn btn-outline">{% trans "Annuler" %}</a>
+                <button type="submit" class="btn btn-danger">{% trans "Oui, supprimer" %}</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
