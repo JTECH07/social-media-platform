@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="container" style="max-width: 680px;">
+    <h2 class="font-bold text-2xl mb-6"><i class="fas fa-compass text-primary mr-2"></i> {% trans "Explorer" %}</h2>
+    
+    <div class="grid gap-6">
+        {% for post in posts %}
+        <div class="post-card mb-0">
+            <div class="post-header">
+                <a href="{% url 'accounts:profile' post.author.username %}" class="post-author">
+                    {% if post.author.profile.avatar %}
+                    <img src="{{ post.author.profile.avatar.url }}" alt="" class="avatar-md">
+                    {% else %}
+                    <div class="avatar-placeholder avatar-md">{{ post.author.username|slice:":1"|upper }}</div>
+                    {% endif %}
+                    <div class="post-meta">
+                        <span class="post-author-name">{{ post.author.get_full_name|default:post.author.username }}</span>
+                        <span class="post-time">{{ post.created_at|timesince }}</span>
+                    </div>
+                </a>
+            </div>
+            
+            <a href="{% url 'posts:detail' post.id %}" class="block">
+                <p class="post-content">{{ post.content|linebreaks }}</p>
+                {% if post.image %}
+                <img src="{{ post.image.url }}" alt="Post image" class="post-image">
+                {% endif %}
+            </a>
+
+            <div class="post-footer">
+                <button class="action-btn like-btn {% if request.user in post.likes.all %}liked{% endif %}" data-post="{{ post.id }}">
+                    <i class="fa-heart {% if request.user in post.likes.all %}fas{% else %}far{% endif %}"></i>
+                    <span class="like-count">{{ post.likes_count }}</span>
+                </button>
+                <a href="{% url 'posts:detail' post.id %}" class="action-btn">
+                    <i class="far fa-comment"></i>
+                    <span>{{ post.comments_count }}</span>
+                </a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="card text-center py-8">
+            <p class="text-muted">{% trans "Rien à explorer pour le moment." %}</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
