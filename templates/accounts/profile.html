@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="container" style="max-width: 900px;">
+    <!-- Profile Header -->
+    <div class="profile-header card" style="padding: 0; margin-bottom: 2rem;">
+        {% if profile.cover_photo %}
+        <img src="{{ profile.cover_photo.url }}" alt="Cover" class="cover-photo">
+        {% else %}
+        <div class="cover-photo bg-gradient-to-r from-primary to-secondary"></div>
+        {% endif %}
+        
+        <div class="profile-info-container">
+            <div class="profile-avatar-wrap">
+                {% if profile.avatar %}
+                <img src="{{ profile.avatar.url }}" alt="{{ profile_user.username }}" class="avatar-lg bg-card">
+                {% else %}
+                <div class="avatar-placeholder avatar-lg bg-card" style="font-size: 3rem;">
+                    {{ profile_user.username|slice:":1"|upper }}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="profile-actions flex gap-2">
+                {% if user == profile_user %}
+                <a href="{% url 'accounts:edit_profile' user.username %}" class="btn btn-outline">
+                    <i class="fas fa-edit"></i> {% trans "Modifier le profil" %}
+                </a>
+                {% elif user.is_authenticated %}
+                <button class="btn {% if is_following %}btn-outline{% else %}btn-primary{% endif %} follow-btn" data-user="{{ profile_user.username }}">
+                    {% if is_following %}
+                    <i class="fas fa-check"></i> {% trans "Abonné" %}
+                    {% else %}
+                    <i class="fas fa-user-plus"></i> {% trans "Suivre" %}
+                    {% endif %}
+                </button>
+                {% endif %}
+            </div>
+
+            <h1 class="profile-name">{{ profile_user.get_full_name|default:profile_user.username }}</h1>
+            <p class="profile-username">@{{ profile_user.username }}</p>
+
+            {% if profile.bio %}
+            <p class="profile-bio">{{ profile.bio }}</p>
+            {% endif %}
+
+            <div class="profile-details">
+                {% if profile.location %}
+                <div><i class="fas fa-map-marker-alt"></i> {{ profile.location }}</div>
+                {% endif %}
+                {% if profile.website %}
+                <div><i class="fas fa-link"></i> <a href="{{ profile.website }}" target="_blank" class="hover:text-primary">{{ profile.website|urlize }}</a></div>
+                {% endif %}
+                <div><i class="fas fa-calendar-alt"></i> {% trans "Inscrit en" %} {{ profile.created_at|date:"F Y" }}</div>
+            </div>
+
+            <div class="profile-stats">
+                <div class="stat-item">
+                    <span class="stat-value">{{ posts.count }}</span>
+                    <span class="stat-label">{% trans "Posts" %}</span>
+                </div>
+                <a href="{% url 'accounts:followers' profile_user.username %}" class="stat-item hover:text-primary transition">
+                    <span class="stat-value" id="followers-count">{{ followers_count }}</span>
+                    <span class="stat-label">{% trans "Abonnés" %}</span>
+                </a>
+                <a href="{% url 'accounts:following' profile_user.username %}" class="stat-item hover:text-primary transition">
+                    <span class="stat-value">{{ following_count }}</span>
+                    <span class="stat-label">{% trans "Abonnements" %}</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Posts -->
+    <h3 class="font-bold mb-4 text-lg border-b border-color pb-2">{% trans "Publications" %}</h3>
+    <div style="max-width: 600px; margin: 0 auto;">
+        {% for post in posts %}
+        <div class="post-card">
+            <div class="post-header">
+                <div class="post-author">
+                    {% if post.author.profile.avatar %}
+                    <img src="{{ post.author.profile.avatar.url }}" alt="" class="avatar-md">
+                    {% else %}
+                    <div class="avatar-placeholder avatar-md">{{ post.author.username|slice:":1"|upper }}</div>
+                    {% endif %}
+                    <div class="post-meta">
+                        <span class="post-author-name">{{ post.author.get_full_name|default:post.author.username }}</span>
+                        <span class="post-time">{{ post.created_at|timesince }}</span>
+                    </div>
+                </div>
+                {% if post.author == user %}
+                <a href="{% url 'posts:delete' post.id %}" class="text-muted hover:text-red-500 transition"><i class="fas fa-trash"></i></a>
+                {% endif %}
+            </div>
+            
+            <a href="{% url 'posts:detail' post.id %}" class="block">
+                <p class="post-content">{{ post.content|linebreaks }}</p>
+                {% if post.image %}
+                <img src="{{ post.image.url }}" alt="Post image" class="post-image">
+                {% endif %}
+            </a>
+
+            <div class="post-footer">
+                <button class="action-btn like-btn {% if request.user in post.likes.all %}liked{% endif %}" data-post="{{ post.id }}">
+                    <i class="fa-heart {% if post.is_liked_by|default:False %}fas{% else %}far{% endif %}"></i>
+                    <span class="like-count">{{ post.likes_count }}</span>
+                </button>
+                <a href="{% url 'posts:detail' post.id %}" class="action-btn">
+                    <i class="far fa-comment"></i>
+                    <span>{{ post.comments_count }}</span>
+                </a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="card text-center py-8">
+            <p class="text-muted">{% trans "Aucune publication pour le moment." %}</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
