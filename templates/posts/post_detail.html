@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% load i18n crispy_forms_tags %}
+
+{% block content %}
+<div class="container" style="max-width: 680px;">
+    <!-- Post -->
+    <div class="post-card mb-4">
+        <div class="post-header">
+            <a href="{% url 'accounts:profile' post.author.username %}" class="post-author">
+                {% if post.author.profile.avatar %}
+                <img src="{{ post.author.profile.avatar.url }}" alt="" class="avatar-md">
+                {% else %}
+                <div class="avatar-placeholder avatar-md">{{ post.author.username|slice:":1"|upper }}</div>
+                {% endif %}
+                <div class="post-meta">
+                    <span class="post-author-name">{{ post.author.get_full_name|default:post.author.username }}</span>
+                    <span class="post-time">{{ post.created_at }}</span>
+                </div>
+            </a>
+            {% if post.author == user %}
+            <a href="{% url 'posts:delete' post.id %}" class="text-muted hover:text-red-500 transition"><i class="fas fa-trash"></i></a>
+            {% endif %}
+        </div>
+        
+        <div class="post-content text-xl">{{ post.content|linebreaks }}</div>
+        {% if post.image %}
+        <img src="{{ post.image.url }}" alt="Post image" class="post-image" style="max-height: none;">
+        {% endif %}
+
+        <div class="post-footer">
+            <button class="action-btn like-btn {% if request.user in post.likes.all %}liked{% endif %}" data-post="{{ post.id }}">
+                <i class="fa-heart {% if request.user in post.likes.all %}fas{% else %}far{% endif %}"></i>
+                <span class="like-count">{{ post.likes_count }}</span>
+            </button>
+            <div class="action-btn">
+                <i class="far fa-comment"></i>
+                <span>{{ post.comments_count }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Comments Section -->
+    <div class="card comments-section mt-0">
+        <h4 class="font-bold mb-4">{% trans "Commentaires" %}</h4>
+        
+        <form method="post" class="mb-6 flex gap-2">
+            {% csrf_token %}
+            {% if user.profile.avatar %}
+            <img src="{{ user.profile.avatar.url }}" alt="" class="avatar-sm">
+            {% else %}
+            <div class="avatar-placeholder avatar-sm">{{ user.username|slice:":1"|upper }}</div>
+            {% endif %}
+            <div class="w-full flex gap-2">
+                {{ comment_form.content }}
+                <button type="submit" class="btn btn-primary px-4 py-2">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </form>
+
+        <div class="comments-list">
+            {% for comment in comments %}
+            <div class="comment" id="comment-{{ comment.id }}">
+                <a href="{% url 'accounts:profile' comment.author.username %}">
+                    {% if comment.author.profile.avatar %}
+                    <img src="{{ comment.author.profile.avatar.url }}" alt="" class="avatar-sm">
+                    {% else %}
+                    <div class="avatar-placeholder avatar-sm">{{ comment.author.username|slice:":1"|upper }}</div>
+                    {% endif %}
+                </a>
+                <div class="w-full">
+                    <div class="comment-body">
+                        <div class="flex justify-between items-start">
+                            <a href="{% url 'accounts:profile' comment.author.username %}" class="comment-author">{{ comment.author.get_full_name|default:comment.author.username }}</a>
+                            {% if comment.author == user %}
+                            <button class="text-muted text-xs hover:text-red-500 delete-comment-btn" data-comment="{{ comment.id }}"><i class="fas fa-times"></i></button>
+                            {% endif %}
+                        </div>
+                        <div class="comment-text">{{ comment.content }}</div>
+                    </div>
+                    <div class="text-xs text-muted mt-1 ml-2">{{ comment.created_at|timesince }}</div>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-muted text-center py-4">{% trans "Soyez le premier à commenter !" %}</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
