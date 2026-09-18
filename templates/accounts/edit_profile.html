@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load i18n crispy_forms_tags %}
+
+{% block content %}
+<div class="container" style="max-width: 800px;">
+    <div class="card">
+        <h2 class="font-bold text-2xl mb-6 pb-4 border-b border-color">
+            <i class="fas fa-user-edit text-primary mr-2"></i> {% trans "Modifier mon profil" %}
+        </h2>
+        
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <h3 class="font-semibold text-lg mb-4 text-muted">{% trans "Informations personnelles" %}</h3>
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                {{ user_form|crispy }}
+            </div>
+            
+            <h3 class="font-semibold text-lg mb-4 mt-8 text-muted">{% trans "Détails du profil" %}</h3>
+            {{ profile_form|crispy }}
+            
+            <div class="mt-8 pt-6 border-t border-color flex justify-end gap-4">
+                <a href="{% url 'accounts:profile' user.username %}" class="btn btn-outline">{% trans "Annuler" %}</a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> {% trans "Enregistrer les modifications" %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
