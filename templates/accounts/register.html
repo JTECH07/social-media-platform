@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load i18n crispy_forms_tags %}
+
+{% block full_page %}
+<div class="auth-page py-12">
+    <div class="auth-card" style="max-width: 550px;">
+        <h1 class="auth-logo">SocialNet</h1>
+        <h2 class="auth-title">{% trans "Créer un compte" %} ✨</h2>
+        
+        <form method="post" class="text-left mb-6">
+            {% csrf_token %}
+            <div class="grid grid-cols-2 gap-4">
+                {{ form.first_name|as_crispy_field }}
+                {{ form.last_name|as_crispy_field }}
+            </div>
+            {{ form.username|as_crispy_field }}
+            {{ form.email|as_crispy_field }}
+            {{ form.password1|as_crispy_field }}
+            {{ form.password2|as_crispy_field }}
+            
+            <button type="submit" class="btn btn-primary w-full mt-4 justify-center py-3 text-lg">{% trans "S'inscrire" %}</button>
+        </form>
+        
+        <p class="text-muted">
+            {% trans "Déjà un compte ?" %} 
+            <a href="{% url 'accounts:login' %}" class="font-semibold text-primary hover:underline">{% trans "Connectez-vous" %}</a>
+        </p>
+    </div>
+</div>
+{% endblock %}
