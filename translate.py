@@ -1,0 +1,136 @@
+import re
+
+translations = {
+    "utilisateur": "user",
+    "biographie": "biography",
+    "avatar": "avatar",
+    "photo de couverture": "cover photo",
+    "site web": "website",
+    "localisation": "location",
+    "date de naissance": "birth date",
+    "créé le": "created at",
+    "mis à jour le": "updated at",
+    "profil": "profile",
+    "profils": "profiles",
+    "abonné": "follower",
+    "abonnement": "following",
+    "abonnements": "followings",
+    "auteur": "author",
+    "contenu": "content",
+    "image": "image",
+    "publication": "post",
+    "publications": "posts",
+    "commentaire parent": "parent comment",
+    "commentaire": "comment",
+    "commentaires": "comments",
+    "j'aime": "like",
+    "destinataire": "recipient",
+    "expéditeur": "sender",
+    "type": "type",
+    "lu": "read",
+    "notification": "notification",
+    "notifications": "notifications",
+    "Adresse email": "Email address",
+    "Prénom": "First name",
+    "Votre prénom": "Your first name",
+    "Nom": "Last name",
+    "Votre nom": "Your last name",
+    "Nom d'utilisateur": "Username",
+    "Choisissez un pseudo": "Choose a username",
+    "Cet email est déjà utilisé.": "This email is already in use.",
+    "Mot de passe": "Password",
+    "Votre pseudo": "Your username",
+    "Biographie": "Biography",
+    "Photo de profil": "Profile photo",
+    "Photo de couverture": "Cover photo",
+    "Site web": "Website",
+    "Localisation": "Location",
+    "Date de naissance": "Birth date",
+    "Parlez-nous de vous...": "Tell us about yourself...",
+    "Ville, Pays": "City, Country",
+    "Email": "Email",
+    "Bienvenue sur SocialNet ! 🎉": "Welcome to SocialNet! 🎉",
+    "Bon retour, {} !": "Welcome back, {}!",
+    "Identifiants incorrects. Veuillez réessayer.": "Incorrect credentials. Please try again.",
+    "Vous avez été déconnecté.": "You have been logged out.",
+    "Profil mis à jour avec succès !": "Profile updated successfully!",
+    "Ajouter une image": "Add an image",
+    "Quoi de neuf ? Partagez quelque chose...": "What's up? Share something...",
+    "Écrire un commentaire...": "Write a comment...",
+    "Publication créée avec succès !": "Post created successfully!",
+    "Commentaire ajouté !": "Comment added!",
+    "Publication supprimée.": "Post deleted.",
+    "J'aime": "Like",
+    "Commentaire": "Comment",
+    "Abonnement": "Follow",
+    "Réponse": "Reply",
+    "SocialNet – Connectez-vous avec le monde entier. Partagez, aimez et découvrez.": "SocialNet – Connect with the whole world. Share, like and discover.",
+    "Rechercher des personnes...": "Search for people...",
+    "Fil d'actualité": "Feed",
+    "Explorer": "Explore",
+    "Notifications": "Notifications",
+    "Mon profil": "My profile",
+    "Paramètres": "Settings",
+    "Déconnexion": "Logout",
+    "Mon Profil": "My Profile",
+    "Publier": "Post",
+    "Rien à voir ici pour l'instant !": "Nothing to see here for now!",
+    "Suivez des personnes ou créez votre première publication.": "Follow people or create your first post.",
+    "Suggestions": "Suggestions",
+    "Aucune suggestion pour le moment.": "No suggestions at the moment.",
+    "Modifier le profil": "Edit profile",
+    "Abonné": "Following",
+    "Suivre": "Follow",
+    "Inscrit en": "Joined in",
+    "Posts": "Posts",
+    "Abonnés": "Followers",
+    "Abonnements": "Following",
+    "Aucune publication pour le moment.": "No posts yet.",
+    "Soyez le premier à commenter !": "Be the first to comment!",
+    "Bienvenue": "Welcome",
+    "Se connecter": "Log in",
+    "Nouveau sur SocialNet ?": "New to SocialNet?",
+    "Créer un compte": "Create an account",
+    "Déjà un compte ?": "Already have an account?",
+    "Connectez-vous": "Log in",
+    "S'inscrire": "Sign up",
+    "Rejoignez la communauté. Partagez, aimez, et découvrez ce qui se passe dans le monde en ce moment.": "Join the community. Share, like, and discover what's happening in the world right now.",
+    "Modifier mon profil": "Edit my profile",
+    "Informations personnelles": "Personal information",
+    "Détails du profil": "Profile details",
+    "Annuler": "Cancel",
+    "Enregistrer les modifications": "Save changes",
+    "a aimé votre publication.": "liked your post.",
+    "a commenté votre publication :": "commented on your post:",
+    "a commencé à vous suivre.": "started following you.",
+    "Vous n'avez aucune notification pour le moment.": "You have no notifications for now.",
+    "Résultats pour": "Results for",
+    "Profil": "Profile",
+    "Aucun utilisateur trouvé pour cette recherche.": "No users found for this search.",
+    "Veuillez entrer un terme de recherche.": "Please enter a search term.",
+    "Rien à explorer pour le moment.": "Nothing to explore at the moment.",
+    "Aucun abonné pour le moment.": "No followers yet.",
+    "Ne suit personne pour le moment.": "Not following anyone yet.",
+}
+
+import os
+
+filepath = 'locale/en/LC_MESSAGES/django.po'
+with open(filepath, 'r', encoding='utf-8') as f:
+    content = f.read()
+
+# Replace msgstr "" with translated strings
+for fr, en in translations.items():
+    # Properly escape quotes in both
+    fr_esc = fr.replace('"', '\\"')
+    en_esc = en.replace('"', '\\"')
+    
+    # We find msgid "fr_esc"\nmsgstr ""
+    pattern = r'msgid "' + re.escape(fr_esc) + r'"\nmsgstr ""'
+    replacement = 'msgid "' + fr_esc + '"\nmsgstr "' + en_esc + '"'
+    content = re.sub(pattern, replacement, content)
+
+with open(filepath, 'w', encoding='utf-8') as f:
+    f.write(content)
+
+print("Translations applied.")
