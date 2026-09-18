@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% load i18n crispy_forms_tags %}
+
+{% block content %}
+<div class="grid-layout">
+    <!-- Left Sidebar: Mini Profile -->
+    <div class="sidebar-left">
+        <div class="card" style="position: sticky; top: calc(var(--nav-height) + 2rem);">
+            <div class="text-center">
+                {% if user.profile.avatar %}
+                <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}" class="avatar-lg mx-auto mb-2" style="margin: 0 auto 1rem;">
+                {% else %}
+                <div class="avatar-placeholder avatar-lg mx-auto mb-2" style="margin: 0 auto 1rem; font-size: 2.5rem;">{{ user.username|slice:":1"|upper }}</div>
+                {% endif %}
+                <h3 class="font-bold text-xl">{{ user.get_full_name|default:user.username }}</h3>
+                <p class="text-muted mb-4">@{{ user.username }}</p>
+                <div class="flex justify-center gap-4 text-sm mb-4">
+                    <div class="text-center">
+                        <div class="font-bold">{{ user.profile.posts_count }}</div>
+                        <div class="text-muted">Posts</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="font-bold">{{ user.profile.followers_count }}</div>
+                        <div class="text-muted">Followers</div>
+                    </div>
+                </div>
+                <a href="{% url 'accounts:profile' user.username %}" class="btn btn-outline w-full justify-center">{% trans "Mon Profil" %}</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Feed -->
+    <div class="main-feed">
+        <!-- Post Creator -->
+        <div class="card">
+            <form action="{% url 'posts:create' %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="post-creator">
+                    {% if user.profile.avatar %}
+                    <img src="{{ user.profile.avatar.url }}" alt="" class="avatar-md">
+                    {% else %}
+                    <div class="avatar-placeholder avatar-md">{{ user.username|slice:":1"|upper }}</div>
+                    {% endif %}
+                    
+                    <div class="w-full">
+                        {{ post_form.content }}
+                        <div id="file-preview-container"></div>
+                        
+                        <div class="post-actions">
+                            <div>
+                                <label for="id_image" class="upload-btn" title="{% trans 'Ajouter un fichier' %}">
+                                    <i class="far fa-image"></i> / <i class="fas fa-video"></i>
+                                </label>
+                                <div style="display:none;">{{ post_form.image }}</div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">{% trans "Publier" %}</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Posts List -->
+        {% for post in posts %}
+        <div class="post-card">
+            <div class="post-header">
+                <a href="{% url 'accounts:profile' post.author.username %}" class="post-author">
+                    {% if post.author.profile.avatar %}
+                    <img src="{{ post.author.profile.avatar.url }}" alt="" class="avatar-md">
+                    {% else %}
+                    <div class="avatar-placeholder avatar-md">{{ post.author.username|slice:":1"|upper }}</div>
+                    {% endif %}
+                    <div class="post-meta">
+                        <span class="post-author-name">{{ post.author.get_full_name|default:post.author.username }}</span>
+                        <span class="post-time">{{ post.created_at|timesince }}</span>
+                    </div>
+                </a>
+                {% if post.author == user %}
+                <a href="{% url 'posts:delete' post.id %}" class="text-muted hover:text-red-500 transition"><i class="fas fa-trash"></i></a>
+                {% endif %}
+            </div>
+            
+            <a href="{% url 'posts:detail' post.id %}" class="block">
+                <p class="post-content">{{ post.content|linebreaks }}</p>
+                {% if post.image %}
+                    {% if post.image.url|lower|slice:"-4:" == ".mp4" or post.image.url|lower|slice:"-5:" == ".webm" or post.image.url|lower|slice:"-4:" == ".ogg" or post.image.url|lower|slice:"-4:" == ".mov" %}
+                        <video src="{{ post.image.url }}" controls class="post-image"></video>
+                    {% else %}
+                        <img src="{{ post.image.url }}" alt="Post attachment" class="post-image">
+                    {% endif %}
+                {% endif %}
+            </a>
+
+            <div class="post-footer">
+                <button class="action-btn like-btn {% if request.user in post.likes.all %}liked{% endif %}" data-post="{{ post.id }}">
+                    <i class="fa-heart {% if post.is_liked_by|default:False %}fas{% else %}far{% endif %}"></i>
+                    <span class="like-count">{{ post.likes_count }}</span>
+                </button>
+                <a href="{% url 'posts:detail' post.id %}" class="action-btn">
+                    <i class="far fa-comment"></i>
+                    <span>{{ post.comments_count }}</span>
+                </a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="card text-center py-8">
+            <i class="fas fa-wind text-4xl text-muted mb-4"></i>
+            <h3 class="text-xl font-bold">{% trans "Rien à voir ici pour l'instant !" %}</h3>
+            <p class="text-muted">{% trans "Suivez des personnes ou créez votre première publication." %}</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Right Sidebar: Suggestions -->
+    <div class="sidebar-right">
+        <div class="card" style="position: sticky; top: calc(var(--nav-height) + 2rem);">
+            <h3 class="font-bold mb-4">{% trans "Suggestions" %}</h3>
+            <div class="flex flex-col gap-4">
+                {% for suggestion in suggested_users %}
+                <div class="user-list-item" style="padding: 0;">
+                    <a href="{% url 'accounts:profile' suggestion.username %}" class="user-info-flex">
+                        {% if suggestion.profile.avatar %}
+                        <img src="{{ suggestion.profile.avatar.url }}" alt="" class="avatar-sm">
+                        {% else %}
+                        <div class="avatar-placeholder avatar-sm text-xs">{{ suggestion.username|slice:":1"|upper }}</div>
+                        {% endif %}
+                        <div>
+                            <div class="font-semibold text-sm">{{ suggestion.get_full_name|default:suggestion.username }}</div>
+                            <div class="text-xs text-muted">@{{ suggestion.username }}</div>
+                        </div>
+                    </a>
+                    <button class="btn btn-primary text-xs follow-btn" data-user="{{ suggestion.username }}" style="padding: 0.3rem 0.8rem;">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+                {% empty %}
+                <p class="text-muted text-sm text-center">{% trans "Aucune suggestion pour le moment." %}</p>
+                {% endfor %}
+            </div>
+            
+            <div class="mt-6 pt-4 border-t border-color text-xs text-muted text-center">
+                &copy; {% now "Y" %} SocialNet
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
