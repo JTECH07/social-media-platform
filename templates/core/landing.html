@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block full_page %}
+<div class="auth-page">
+    <div class="container flex justify-center items-center" style="min-height: 80vh;">
+        <div class="auth-card" style="max-width: 600px; padding: 4rem;">
+            <div class="brand-icon mx-auto mb-4" style="width: 80px; height: 80px; font-size: 2.5rem; margin: 0 auto 2rem auto;">
+                <i class="fas fa-globe-europe"></i>
+            </div>
+            <h1 class="auth-logo" style="font-size: 3.5rem;">SocialNet</h1>
+            <p class="auth-title" style="font-size: 1.25rem;">{% trans "Rejoignez la communauté. Partagez, aimez, et découvrez ce qui se passe dans le monde en ce moment." %}</p>
+            
+            <div class="flex" style="flex-direction: column; gap: 1rem; margin-top: 3rem;">
+                <a href="{% url 'accounts:register' %}" class="btn btn-primary" style="font-size: 1.1rem; padding: 1rem;">
+                    {% trans "Créer un compte" %}
+                </a>
+                <a href="{% url 'accounts:login' %}" class="btn btn-outline" style="font-size: 1.1rem; padding: 1rem;">
+                    {% trans "Se connecter" %}
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
