@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="container" style="max-width: 680px;">
+    <div class="card">
+        <h2 class="font-bold text-xl mb-6 pb-4 border-b border-color">
+            <i class="fas fa-search text-primary mr-2"></i> {% trans "Résultats pour" %} "{{ query }}"
+        </h2>
+        
+        {% if query %}
+            <div class="flex flex-col gap-4">
+                {% for user_result in users %}
+                <div class="user-list-item border border-color">
+                    <a href="{% url 'accounts:profile' user_result.username %}" class="user-info-flex">
+                        {% if user_result.profile.avatar %}
+                        <img src="{{ user_result.profile.avatar.url }}" alt="" class="avatar-md">
+                        {% else %}
+                        <div class="avatar-placeholder avatar-md">{{ user_result.username|slice:":1"|upper }}</div>
+                        {% endif %}
+                        <div>
+                            <div class="font-bold text-lg">{{ user_result.get_full_name|default:user_result.username }}</div>
+                            <div class="text-sm text-muted">@{{ user_result.username }}</div>
+                            {% if user_result.profile.bio %}
+                            <p class="text-sm mt-1 text-muted truncate" style="max-width: 300px;">{{ user_result.profile.bio }}</p>
+                            {% endif %}
+                        </div>
+                    </a>
+                    
+                    {% if request.user.is_authenticated %}
+                    <button class="btn btn-outline text-sm follow-btn" data-user="{{ user_result.username }}">
+                        <i class="fas fa-user"></i> {% trans "Profil" %}
+                    </button>
+                    {% endif %}
+                </div>
+                {% empty %}
+                <div class="text-center py-8 text-muted">
+                    <i class="fas fa-user-slash text-4xl mb-4"></i>
+                    <p>{% trans "Aucun utilisateur trouvé pour cette recherche." %}</p>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-muted">{% trans "Veuillez entrer un terme de recherche." %}</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
