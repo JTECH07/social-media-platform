@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="container" style="max-width: 680px;">
+    <div class="card p-0 overflow-hidden">
+        <div class="p-4 border-b border-color bg-main">
+            <h2 class="font-bold text-xl"><i class="fas fa-bell text-primary mr-2"></i> {% trans "Notifications" %}</h2>
+        </div>
+        
+        <div class="notifications-list">
+            {% for notif in notifications %}
+            <div class="notif-item {% if not notif.is_read %}unread{% endif %}">
+                <a href="{% url 'accounts:profile' notif.sender.username %}" class="notif-icon-wrap">
+                    {% if notif.sender.profile.avatar %}
+                    <img src="{{ notif.sender.profile.avatar.url }}" alt="" class="avatar-md">
+                    {% else %}
+                    <div class="avatar-placeholder avatar-md">{{ notif.sender.username|slice:":1"|upper }}</div>
+                    {% endif %}
+                    
+                    {% if notif.notification_type == 'like' %}
+                    <div class="notif-type-icon type-like"><i class="fas fa-heart"></i></div>
+                    {% elif notif.notification_type == 'comment' %}
+                    <div class="notif-type-icon type-comment"><i class="fas fa-comment"></i></div>
+                    {% elif notif.notification_type == 'follow' %}
+                    <div class="notif-type-icon bg-blue-500"><i class="fas fa-user-plus"></i></div>
+                    {% endif %}
+                </a>
+                
+                <div class="flex-1">
+                    <p class="mb-1">
+                        <a href="{% url 'accounts:profile' notif.sender.username %}" class="font-bold hover:underline">{{ notif.sender.get_full_name|default:notif.sender.username }}</a>
+                        
+                        {% if notif.notification_type == 'like' %}
+                        {% trans "a aimé votre publication." %}
+                        {% elif notif.notification_type == 'comment' %}
+                        {% trans "a commenté votre publication :" %} 
+                        <span class="italic text-muted">"{{ notif.comment.content|truncatechars:30 }}"</span>
+                        {% elif notif.notification_type == 'follow' %}
+                        {% trans "a commencé à vous suivre." %}
+                        {% endif %}
+                    </p>
+                    
+                    <p class="text-xs text-muted">{{ notif.created_at|timesince }}</p>
+                    
+                    {% if notif.post %}
+                    <a href="{% url 'posts:detail' notif.post.id %}" class="block mt-2 p-3 border border-color rounded bg-main hover:bg-card transition text-sm">
+                        {{ notif.post.content|truncatechars:60 }}
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center py-10 text-muted">
+                <i class="far fa-bell-slash text-4xl mb-4"></i>
+                <p>{% trans "Vous n'avez aucune notification pour le moment." %}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
